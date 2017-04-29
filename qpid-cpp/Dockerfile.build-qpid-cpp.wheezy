@@ -1,0 +1,73 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+FROM debian:wheezy-slim
+
+# Prevent debconf warnings such as the following
+# debconf: unable to initialize frontend: Dialog
+# debconf: (TERM is not set, so the dialog frontend is not usable.)
+# debconf: falling back to frontend: Readline
+# See https://github.com/jessfraz/dockerfiles/issues/12
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /usr/src
+
+COPY LICENSE .
+COPY build.sh .
+
+RUN \
+    echo Installing package dependencies && \
+
+    apt-get update && \
+
+    # Add the packages used to build qpid-cpp
+    apt-get install -y --no-install-recommends \
+    apt-utils patch pkg-config perl libperl-dev python python-dev ruby ruby-dev \
+    ca-certificates swig curl git cmake make gcc g++ libboost-all-dev uuid-dev \
+    libsasl2-dev libsasl2-modules sasl2-bin libnspr4-dev libnss3-dev libdb++-dev \
+    librdmacm-dev libaio-dev libxerces-c-dev libxqilla-dev
+
+#-------------------------------------------------------------------------------
+# Example usage
+#
+# Build the Qpid build toolchain as an image called build-qpid-cpp.
+# docker build -t build-qpid-cpp:wheezy -f Dockerfile.build-qpid-cpp.wheezy .
+# 
+# Run the main shell for debugging.
+# docker run --rm -it build-qpid-cpp:wheezy /bin/bash
+#
+# Build specified version and extract.
+# docker run --rm build-qpid-cpp:wheezy sh -c './build.sh 0.5 1>&2; tar c qpid.tar.gz' | tar xv
+# docker run --rm build-qpid-cpp:wheezy sh -c './build.sh 0.32 1>&2; tar c qpid.tar.gz' | tar xv
+# docker run --rm build-qpid-cpp:wheezy sh -c './build.sh 1.36.0 1>&2; tar c qpid.tar.gz' | tar xv
+# docker run --rm build-qpid-cpp:wheezy sh -c './build.sh trunk 1>&2; tar c qpid.tar.gz' | tar xv
+#
+# The qpid.tar.gz archive contains qpidd.tar.gz, spout.tar.gz, drain.tar.gz
+# and messaging.tar.gz
+# which need to be extracted via tar xvfp qpid.tar.gz
+#
+# Build Docker qpidd image using the qpidd.tar.gz we've just extracted above.
+# docker build -t qpidd -f Dockerfile.qpidd .
+#
+# Build Docker spout image using the spout.tar.gz we've just extracted above.
+# docker build -t spout -f Dockerfile.spout .
+#
+# Build Docker drain image using the drain.tar.gz we've just extracted above.
+# docker build -t drain -f Dockerfile.drain .
+
