@@ -203,7 +203,7 @@ if [ ${PROTON_VERSION} != 0 ]; then
     cd qpid-proton
 
     # Patch CMake file to build statically linked qpid-proton.
-    sed -i "s/add_library/add_library (qpid-proton_static STATIC \${qpid-proton-core} \${qpid-proton-platform} \${qpid-proton-include})\n\nadd_library/g" ${PROTON_PATH}CMakeLists.txt
+    sed -i "s/target_link_libraries (qpid-proton \${UUID_LIB}/add_library (qpid-proton_static STATIC \${qpid-proton-core} \${qpid-proton-platform} \${qpid-proton-include} \${qpid-proton-extra-deps} \${qpid-proton-layers} \${qpid-proton-include-generated})\n\ntarget_link_libraries (qpid-proton \${UUID_LIB}/g" ${PROTON_PATH}CMakeLists.txt
 
     mkdir build
     cd build
