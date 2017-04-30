@@ -16,6 +16,12 @@ docker build -t build-qpid-cpp:jessie -f Dockerfile.build-qpid-cpp.jessie .
 
 Having built a build toolchain image it is then possible to build any released version of qpid-cpp from 0.5 to trunk as the build script has included the necessary tweaks and patches required to successfully build older Qpid versions. The build system exports a gzipped tar file *qpid.tar.gz* which contains qpidd.tar.gz spout.tar.gz drain.tar.gz representing the files needed to create Docker images for qpidd, spout and drain plus messaging.tar.gz which contains headers and **static** libraries for the qpid::messaging API for the specified version. Building and exporting a static library version of qpid::messaging is useful because it's fairly common to run into issues as a result of boost incompatibilities between the boost version needed by Qpid and that required/desired by the application using qpid::messaging.
 
+
+&nbsp;
+
+
+Note that for Qpid versions that support AMQP 1.0 the build system will attempt to work out the best version of Qpid [Proton](http://qpid.apache.org/proton/index.html) for the specified Qpid version and will build that first to enable AMQP 1.0 support in the built images.
+
 Some examples of building specified Qpid versions using the debian:wheezy based toolchain:
 
 **Qpid 0.5**
